@@ -97,8 +97,8 @@ class MainWin(QWidget):
             else:
                 df = df
 
-            scores = list(df.scores)
-            win_scores_int = sorted(set(map(int, scores)), reverse=True)[:3]
+            scores = list(map(int, df.scores))
+            win_scores_int = sorted(set(scores), reverse=True)[:3]
             win_scores_int = ' '.join([str(elem) for elem in win_scores_int])
             win_scores = win_scores_int.split(' ')
             if len(win_scores) == 3:
@@ -127,7 +127,15 @@ class MainWin(QWidget):
             silver_color = QColor(192, 192, 192)
             bronze_color = QColor(205, 127, 50)
 
+            del df['scores']
+            print(df)
+            df.insert(1, 'scores', scores)
             df = df.sort_values(by='scores', ascending=False)
+            scores = list(df.scores)
+            win_scores_int = ' '.join([str(elem) for elem in scores])
+            win_scores = win_scores_int.split(' ')
+            del df['scores']
+            df.insert(1, 'scores', win_scores)
             scores_item = list(df.scores)
             user_item = list(df.user_name)
             surnames_item = list(df.surname)
