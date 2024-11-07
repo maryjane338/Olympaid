@@ -99,43 +99,45 @@ class MainWin(QWidget):
                     df = df
 
                 scores = list(map(int, df.scores))
-                win_scores_int = sorted(set(scores), reverse=True)[:3]
-                win_scores_int = ' '.join([str(elem) for elem in win_scores_int])
-                win_scores = win_scores_int.split(' ')
-                if len(win_scores) == 3:
-                    gold_fltr = df.scores == win_scores[0]
-                    silver_fltr = df.scores == win_scores[1]
-                    bronze_fltr = df.scores == win_scores[2]
-                    gold_df = df.loc[gold_fltr, :]
-                    silver_df = df.loc[silver_fltr, :]
-                    bronze_df = df.loc[bronze_fltr, :]
-                    number_gold_df = gold_df.shape[0]
-                    number_silver_df = silver_df.shape[0]
-                    number_bronze_df = bronze_df.shape[0]
-                elif len(win_scores) == 2:
-                    gold_fltr = df.scores == win_scores[0]
-                    silver_fltr = df.scores == win_scores[1]
-                    gold_df = df.loc[gold_fltr, :]
-                    silver_df = df.loc[silver_fltr, :]
-                    number_gold_df = gold_df.shape[0]
-                    number_silver_df = silver_df.shape[0]
-                elif len(win_scores) == 1:
-                    gold_fltr = df.scores == win_scores[0]
-                    gold_df = df.loc[gold_fltr, :]
-                    number_gold_df = gold_df.shape[0]
+                if len(scores) != 0:
+                    win_scores_int = sorted(set(scores), reverse=True)[:3]
+                    win_scores_int = ' '.join([str(elem) for elem in win_scores_int])
+                    win_scores = win_scores_int.split(' ')
+                    if len(win_scores) == 3:
+                        gold_fltr = df.scores == win_scores[0]
+                        silver_fltr = df.scores == win_scores[1]
+                        bronze_fltr = df.scores == win_scores[2]
+                        gold_df = df.loc[gold_fltr, :]
+                        silver_df = df.loc[silver_fltr, :]
+                        bronze_df = df.loc[bronze_fltr, :]
+                        number_gold_df = gold_df.shape[0]
+                        number_silver_df = silver_df.shape[0]
+                        number_bronze_df = bronze_df.shape[0]
+                    elif len(win_scores) == 2:
+                        gold_fltr = df.scores == win_scores[0]
+                        silver_fltr = df.scores == win_scores[1]
+                        gold_df = df.loc[gold_fltr, :]
+                        silver_df = df.loc[silver_fltr, :]
+                        number_gold_df = gold_df.shape[0]
+                        number_silver_df = silver_df.shape[0]
+                    elif len(win_scores) == 1:
+                        gold_fltr = df.scores == win_scores[0]
+                        gold_df = df.loc[gold_fltr, :]
+                        number_gold_df = gold_df.shape[0]
+
+                    del df['scores']
+                    df.insert(1, 'scores', scores)
+                    df = df.sort_values(by='scores', ascending=False)
+                    scores2_list = list(df.scores)
+                    scores_int = ' '.join([str(elem) for elem in scores2_list])
+                    scores_str = scores_int.split(' ')
+                    del df['scores']
+                    df.insert(1, 'scores', scores_str)
 
                 gold_color = QColor(255, 215, 0)
                 silver_color = QColor(192, 192, 192)
                 bronze_color = QColor(205, 127, 50)
 
-                del df['scores']
-                df.insert(1, 'scores', scores)
-                df = df.sort_values(by='scores', ascending=False)
-                scores2_list = list(df.scores)
-                scores_int = ' '.join([str(elem) for elem in scores2_list])
-                scores_str = scores_int.split(' ')
-                del df['scores']
-                df.insert(1, 'scores', scores_str)
                 scores_item = list(df.scores)
                 user_item = list(df.user_name)
                 surnames_item = list(df.surname)
