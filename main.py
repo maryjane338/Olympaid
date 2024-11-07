@@ -38,53 +38,53 @@ class MainWin(QWidget):
 
     def open(self):
         self.file = QFileDialog.getOpenFileName(self, 'Выберите файл')[0]
-        surnames = []
-        scores = []
-        user = []
-        school = []
-        grade = []
         if self.file:
             with open(self.file, 'r') as f:
                 reader = csv.reader(f)
                 next(reader)
-                rows = list(reader)
-                for row in rows:
-                    a = row[1]
-                    b = row[2]
-                    list1 = a.split(' ')
-                    list2 = b.split('-')
-                    surnames.append(list1[3])
-                    scores.append(row[7])
-                    user.append(row[1])
-                    school.append(list2[2])
-                    grade.append(list2[3])
-            results = {'surname': surnames,
-                       'scores': scores,
-                       'user_name': user,
-                       'school': school,
-                       'grade': grade}
-            self.results_df = pd.DataFrame(results)
+                self.rows = list(reader)
 
-            not_duplicate_school = []
-            for i in school:
-                if i not in not_duplicate_school:
-                    not_duplicate_school.append(i)
+                self.filtration()
 
-            not_duplicate_grade = []
-            for i in grade:
-                if i not in not_duplicate_grade:
-                    not_duplicate_grade.append(i)
-
-            self.school_box.addItems(sorted(not_duplicate_school))
-            self.grade_box.addItems(sorted(not_duplicate_grade))
+                not_duplicate_school = []
+                for i in self.school:
+                    if i not in not_duplicate_school:
+                        not_duplicate_school.append(i)
+                not_duplicate_grade = []
+                for i in self.grade:
+                    if i not in not_duplicate_grade:
+                        not_duplicate_grade.append(i)
+                self.school_box.addItems(sorted(not_duplicate_school))
+                self.grade_box.addItems(sorted(not_duplicate_grade))
         else:
             message = QMessageBox()
             message.setWindowTitle('Инфо')
             message.setText('Файл не выбран')
             message.exec()
 
-
     def filtration(self):
+        self.surnames = []
+        self.scores = []
+        self.user = []
+        self.school = []
+        self.grade = []
+        for row in self.rows:
+            a = row[1]
+            b = row[2]
+            list1 = a.split(' ')
+            list2 = b.split('-')
+            self.surnames.append(list1[3])
+            self.scores.append(row[7])
+            self.user.append(row[1])
+            self.school.append(list2[2])
+            self.grade.append(list2[3])
+        results = {'surname': self.surnames,
+                   'scores': self.scores,
+                   'user_name': self.user,
+                   'school': self.school,
+                   'grade': self.grade}
+        self.results_df = pd.DataFrame(results)
+
         if self.file is not None:
             if self.school_box.currentText() != 'Все':
                 fltr = self.results_df.school == self.school_box.currentText()
@@ -128,17 +128,17 @@ class MainWin(QWidget):
             bronze_color = QColor(205, 127, 50)
 
             del df['scores']
-            print(df)
             df.insert(1, 'scores', scores)
             df = df.sort_values(by='scores', ascending=False)
-            scores = list(df.scores)
-            win_scores_int = ' '.join([str(elem) for elem in scores])
-            win_scores = win_scores_int.split(' ')
+            scores2_list = list(df.scores)
+            scores_int = ' '.join([str(elem) for elem in scores2_list])
+            scores_str = scores_int.split(' ')
             del df['scores']
-            df.insert(1, 'scores', win_scores)
+            df.insert(1, 'scores', scores_str)
             scores_item = list(df.scores)
             user_item = list(df.user_name)
             surnames_item = list(df.surname)
+            print(df)
             model2 = QStandardItemModel()
             model2.setHorizontalHeaderLabels(["Фамилия", "Результат", "Логин"])
             for i, (score, user_login, surname) in enumerate(zip(scores_item, user_item, surnames_item)):
@@ -166,7 +166,6 @@ class MainWin(QWidget):
             message.setWindowTitle('Инфо')
             message.setText('Вы не открыли файл.')
             message.exec()
-
 
 def main():
     app = QApplication([])
